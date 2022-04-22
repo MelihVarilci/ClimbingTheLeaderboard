@@ -18,38 +18,63 @@ List<int> players = new()
     90,
     102
 };
+//List<int> rankeds = new()
+//{
+//    100,
+//    100,
+//    50,
+//    40,
+//    40,
+//    20,
+//    10
+//};
+//List<int> players = new()
+//{
+//    5,
+//    25,
+//    50,
+//    120
+//};
 
 static List<int> climbingLeaderboard(List<int> ranked, List<int> player)
 {
-    //List<int> rankedList = ranked.Distinct().ToList();
-    List<int> result = new List<int>();
-    var inputTxt = File.ReadAllText(@"C:\Users\Dell5501-1\source\repos\ConsoleApp1\ConsoleApp1\input06.txt");
+    var inputTxt = File.ReadAllText(@"C:\Users\Dell5501-1\source\repos\ClimbingTheLeaderboard\ClimbingTheLeaderboard\input06.txt");
     var splitInputTxt = Regex.Replace(inputTxt, @"\t|\n|\r", "")
         .Split(" ").ToList();
 
-    var outputTxt = File.ReadAllText(@"C:\Users\Dell5501-1\source\repos\ConsoleApp1\ConsoleApp1\output06.txt");
-    var splitOutputTxt = Regex.Replace(inputTxt, @"\t|\n|\r", "")
+    var outputTxt = File.ReadAllText(@"C:\Users\Dell5501-1\source\repos\ClimbingTheLeaderboard\ClimbingTheLeaderboard\output06.txt");
+    var splitOutputTxt = Regex.Replace(outputTxt, @"\t|\n|\r", " ")
         .Split(" ").ToList();
 
-    var rankedList = splitInputTxt.ConvertAll(s => Int64.Parse(s));
-    var playerList = splitOutputTxt.ConvertAll(s => Int64.Parse(s));
+    // Terminated due to timeout :(
+    var rankedList = new HashSet<long>(splitInputTxt.ConvertAll(s => Int64.Parse(s))).OrderBy(x => x).ToList();
+    var playerList = new HashSet<long>(splitOutputTxt.ConvertAll(s => Int64.Parse(s))).ToList();
+
+    //var rankedList = new HashSet<int>(ranked).OrderBy(x => x).Reverse().ToList();
+
+    // Collections
+    List<int> result = new List<int>();
+    Queue<int> resultQueue = new Queue<int>();
+    Stack<int> resultStack = new Stack<int>();
+    LinkedList<int> resultLinkedList = new LinkedList<int>();
+    string stringResult = "";
 
     Stopwatch stopwatch = new Stopwatch();
     stopwatch.Start();
-    player.ForEach(x =>
+    playerList.ForEach(x =>
     {
-        ranked.Add(x);
-        ranked.Sort();
-        var newRankedList = ranked.Distinct().ToList();
-        newRankedList.Reverse();
-        result.Add(newRankedList.IndexOf(x) + 1);
+        //result.Add(rankedList.Count(y => y > x) + 1); // 176095 ms
+        //resultQueue.Enqueue(rankedList.Count(y => y > x) + 1); // 177710 ms
+        //resultStack.Push(rankedList.Count(y => y > x) + 1); // 179206 ms
+        resultLinkedList.AddLast(rankedList.Count(y => y > x) + 1); // 168004 ms
+        //stringResult += (rankedList.Count(y => y > x) + 1).ToString() + " "; // 185789 ms
     }
     );
     stopwatch.Stop();
 
     Console.WriteLine("Elapsed Time is {0} ms", stopwatch.ElapsedMilliseconds);
 
-    return result;
+    return resultLinkedList.ToList();
 }
 
 climbingLeaderboard(rankeds, players).ForEach(x => Console.WriteLine(x));
